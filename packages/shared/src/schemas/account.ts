@@ -9,3 +9,12 @@ export const AccountCreateSchema = z.object({
 })
 
 export type AccountCreateInput = z.infer<typeof AccountCreateSchema>
+
+export const AccountUpdateSchema = z.object({
+  name: z.string().min(1).optional(),
+  credential: z.string().optional(),
+  isEnabled: z.boolean().optional(),
+  status: z.string().optional(),
+})
+
+export type AccountUpdateInput = z.infer<typeof AccountUpdateSchema>

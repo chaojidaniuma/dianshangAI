@@ -1,22 +1,9 @@
 import { randomUUID } from 'node:crypto'
+import type { Order } from '@ecom-agent/shared'
 import { getDb } from '../db/db.js'
 import { updateRow } from './utils.js'
 
-export interface OrderRow {
-  id: string
-  accountId: string
-  platform: string
-  orderNo: string
-  productId: string | null
-  productTitle: string | null
-  quantity: number
-  amount: number
-  status: string
-  expressCompany: string | null
-  trackingNumber: string | null
-  createdAt: string
-  updatedAt: string
-}
+export type OrderRow = Order
 
 export interface NewOrder {
   accountId: string

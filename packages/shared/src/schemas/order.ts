@@ -13,4 +13,4 @@ export const OrderSchema = z.object({
   status: z.string().min(1),
 })
 
-export type Order = z.infer<typeof OrderSchema>
+export type OrderInput = z.infer<typeof OrderSchema>

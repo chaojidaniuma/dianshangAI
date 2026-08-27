@@ -1,7 +1,10 @@
 import { buildApp } from './app.js'
+import { seedDefaultAccount } from './seed.js'
 
 const port = Number(process.env.PORT ?? 3000)
 const host = process.env.HOST ?? '0.0.0.0'
+
+seedDefaultAccount()
 
 const app = buildApp()
 

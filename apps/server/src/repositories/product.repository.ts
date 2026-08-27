@@ -1,21 +1,9 @@
 import { randomUUID } from 'node:crypto'
+import type { Product } from '@ecom-agent/shared'
 import { getDb } from '../db/db.js'
 import { updateRow } from './utils.js'
 
-export interface ProductRow {
-  id: string
-  accountId: string
-  platform: string
-  title: string
-  description: string | null
-  price: number
-  cost: number
-  category: string | null
-  status: string
-  platformProductId: string | null
-  createdAt: string
-  updatedAt: string
-}
+export type ProductRow = Product
 
 export interface NewProduct {
   accountId: string

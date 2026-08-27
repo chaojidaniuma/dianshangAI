@@ -115,6 +115,13 @@ export default function Settings() {
           </div>
         </section>
 
+        <section className="rounded-lg border border-gray-200 bg-white p-5">
+          <h2 className="mb-4 text-base font-semibold">备份</h2>
+          <a href="/api/backup" className="rounded border border-gray-300 px-4 py-2 text-sm text-gray-700">
+            下载数据备份（zip）
+          </a>
+        </section>
+
         <div className="flex gap-2">
           <button
             className="rounded bg-blue-600 px-4 py-2 text-sm text-white"

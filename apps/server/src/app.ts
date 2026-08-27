@@ -6,6 +6,7 @@ import { orderRoutes } from './routes/orders.js'
 import { productRoutes } from './routes/products.js'
 import { reportRoutes } from './routes/report.js'
 import { settingsRoutes } from './routes/settings.js'
+import { systemRoutes } from './routes/system.js'
 
 export function buildApp(): FastifyInstance {
   const app = Fastify({ logger: true })
@@ -26,6 +27,7 @@ export function buildApp(): FastifyInstance {
   app.register(settingsRoutes)
   app.register(jobRoutes)
   app.register(reportRoutes)
+  app.register(systemRoutes)
 
   return app
 }

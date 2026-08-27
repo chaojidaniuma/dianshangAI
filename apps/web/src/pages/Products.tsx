@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState, type ChangeEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { Product, ProductCreateInput, ProductUpdateInput } from '@ecom-agent/shared'
 import { productApi } from '../api/products'
@@ -15,6 +15,8 @@ export default function Products() {
   const [page, setPage] = useState(1)
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Product | null>(null)
+  const [importResult, setImportResult] = useState<string | null>(null)
+  const fileRef = useRef<HTMLInputElement>(null)
 
   const { data = [], isLoading, error } = useQuery({ queryKey: ['products'], queryFn: productApi.list })
 
@@ -55,20 +57,64 @@ export default function Products() {
   const formError =
     createMutation.error?.message ?? updateMutation.error?.message ?? null
 
+  async function handleImport(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result as string)
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
+    const base64 = dataUrl.split(',')[1] ?? ''
+    try {
+      const r = await productApi.import(file.name, base64)
+      setImportResult(`成功导入 ${r.imported} 条${r.errors.length ? `，${r.errors.length} 条错误` : ''}`)
+      invalidate()
+    } catch (err) {
+      setImportResult(`导入失败：${(err as Error).message}`)
+    }
+  }
+
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-xl font-semibold">商品</h1>
-        <button
-          onClick={() => {
-            setEditing(null)
-            setFormOpen((v) => !v)
-          }}
-          className="rounded bg-blue-600 px-4 py-2 text-sm text-white"
-        >
-          新建商品
-        </button>
+        <div className="flex gap-2">
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".csv,.xlsx,.xls"
+            className="hidden"
+            onChange={handleImport}
+          />
+          <button
+            onClick={() => fileRef.current?.click()}
+            className="rounded border border-gray-300 px-4 py-2 text-sm text-gray-700"
+          >
+            批量导入
+          </button>
+          <a
+            href="/api/export/products"
+            className="rounded border border-gray-300 px-4 py-2 text-sm text-gray-700"
+          >
+            导出 CSV
+          </a>
+          <button
+            onClick={() => {
+              setEditing(null)
+              setFormOpen((v) => !v)
+            }}
+            className="rounded bg-blue-600 px-4 py-2 text-sm text-white"
+          >
+            新建商品
+          </button>
+        </div>
       </div>
+
+      {importResult && (
+        <p className="mb-4 rounded bg-gray-100 px-3 py-2 text-sm text-gray-700">{importResult}</p>
+      )}
 
       {formOpen && (
         <div className="mb-6">

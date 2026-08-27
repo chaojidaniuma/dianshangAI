@@ -1,4 +1,5 @@
 import Fastify, { type FastifyInstance } from 'fastify'
+import { importExportRoutes } from './routes/import-export.js'
 import { orderRoutes } from './routes/orders.js'
 import { productRoutes } from './routes/products.js'
 
@@ -16,6 +17,7 @@ export function buildApp(): FastifyInstance {
 
   app.register(productRoutes)
   app.register(orderRoutes)
+  app.register(importExportRoutes)
 
   return app
 }

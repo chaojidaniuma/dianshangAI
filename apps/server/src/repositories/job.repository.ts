@@ -53,3 +53,42 @@ export function updateJob(
 export function deleteJob(id: string): boolean {
   return getDb().prepare('DELETE FROM jobs WHERE id = ?').run(id).changes > 0
 }
+
+export interface JobRunRow {
+  id: string
+  jobId: string
+  status: string
+  startedAt: string
+  finishedAt: string | null
+  result: string | null
+  error: string | null
+}
+
+export function getJobRunById(id: string): JobRunRow | undefined {
+  return getDb().prepare('SELECT * FROM job_runs WHERE id = ?').get(id) as JobRunRow | undefined
+}
+
+export function createJobRun(jobId: string): JobRunRow {
+  const id = randomUUID()
+  getDb().prepare('INSERT INTO job_runs (id, jobId) VALUES (?, ?)').run(id, jobId)
+  return getJobRunById(id) as JobRunRow
+}
+
+export function finishJobRun(
+  id: string,
+  patch: { status: 'success' | 'failed'; result?: string; error?: string },
+): JobRunRow {
+  getDb()
+    .prepare("UPDATE job_runs SET status = ?, finishedAt = datetime('now'), result = ?, error = ? WHERE id = ?")
+    .run(patch.status, patch.result ?? null, patch.error ?? null, id)
+  return getJobRunById(id) as JobRunRow
+}
+
+export function listJobRuns(jobId?: string, limit = 50): JobRunRow[] {
+  if (jobId) {
+    return getDb()
+      .prepare('SELECT * FROM job_runs WHERE jobId = ? ORDER BY startedAt DESC LIMIT ?')
+      .all(jobId, limit) as JobRunRow[]
+  }
+  return getDb().prepare('SELECT * FROM job_runs ORDER BY startedAt DESC LIMIT ?').all(limit) as JobRunRow[]
+}

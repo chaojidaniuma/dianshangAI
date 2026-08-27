@@ -1,8 +1,10 @@
 import Fastify, { type FastifyInstance } from 'fastify'
 import { accountRoutes } from './routes/accounts.js'
 import { importExportRoutes } from './routes/import-export.js'
+import { jobRoutes } from './routes/jobs.js'
 import { orderRoutes } from './routes/orders.js'
 import { productRoutes } from './routes/products.js'
+import { reportRoutes } from './routes/report.js'
 import { settingsRoutes } from './routes/settings.js'
 
 export function buildApp(): FastifyInstance {
@@ -22,6 +24,8 @@ export function buildApp(): FastifyInstance {
   app.register(importExportRoutes)
   app.register(accountRoutes)
   app.register(settingsRoutes)
+  app.register(jobRoutes)
+  app.register(reportRoutes)
 
   return app
 }

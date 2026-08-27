@@ -19,3 +19,16 @@ export interface ChatResult {
 export interface LLMProvider {
   chat(input: ChatInput): Promise<ChatResult>
 }
+
+export interface ImageInput {
+  prompt: string
+}
+
+export interface ImageResult {
+  imageUrl?: string
+  imageBase64?: string
+}
+
+export interface ImageProvider {
+  generate(input: ImageInput): Promise<ImageResult>
+}

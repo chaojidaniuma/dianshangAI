@@ -1,4 +1,5 @@
 import type { LLMProvider } from '@ecom-agent/shared'
+import { getAllSettings } from '../../repositories/settings.repository.js'
 import { createOpenAiCompatibleProvider } from './openai-compatible.js'
 
 export interface LlmPreset {
@@ -15,16 +16,25 @@ export const LLM_PRESETS: Record<string, LlmPreset> = {
   qwen: { name: '百炼', baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1', defaultModel: 'qwen-plus' },
 }
 
-export function createProviderFromEnv(): LLMProvider | null {
-  const preset = LLM_PRESETS[process.env.LLM_PROVIDER ?? '']
-  const baseUrl = process.env.LLM_BASE_URL ?? preset?.baseUrl
-  const apiKey = process.env.LLM_API_KEY
-  const model = process.env.LLM_MODEL ?? preset?.defaultModel
-  if (!baseUrl || !apiKey || !model) return null
-  return createOpenAiCompatibleProvider({
-    baseUrl,
-    apiKey,
-    model,
-    timeoutMs: Number(process.env.LLM_TIMEOUT_MS ?? 30_000),
-  })
+export interface LlmConfig {
+  baseUrl?: string
+  apiKey?: string
+  model?: string
+  timeoutMs: number
+}
+
+export function resolveLlmConfig(): LlmConfig {
+  const s = getAllSettings()
+  const preset = LLM_PRESETS[s['llm.provider'] ?? process.env.LLM_PROVIDER ?? '']
+  return {
+    baseUrl: s['llm.baseUrl'] ?? process.env.LLM_BASE_URL ?? preset?.baseUrl,
+    apiKey: s['llm.apiKey'] ?? process.env.LLM_API_KEY,
+    model: s['llm.model'] ?? process.env.LLM_MODEL ?? preset?.defaultModel,
+    timeoutMs: Number(s['llm.timeoutMs'] ?? process.env.LLM_TIMEOUT_MS ?? 30_000),
+  }
+}
+
+export function createProviderFromConfig(config: LlmConfig): LLMProvider | null {
+  if (!config.baseUrl || !config.apiKey || !config.model) return null
+  return createOpenAiCompatibleProvider(config as { baseUrl: string; apiKey: string; model: string; timeoutMs: number })
 }

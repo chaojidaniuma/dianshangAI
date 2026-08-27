@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { buildApp } from '../apps/server/src/app.ts'
+import { buildApp } from '../apps/server/dist/app.js'
 
 test('GET /health 返回统一结构', async () => {
   const app = buildApp()

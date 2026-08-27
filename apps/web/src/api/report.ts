@@ -5,8 +5,13 @@ export interface DailyReport {
   orders: number
   shipped: number
   revenue: number
+  productCost: number
   aiCost: number
+  adCost: number | null
+  platformFee: number | null
+  shippingFee: number | null
   profit: number
+  unaccounted: string[]
 }
 
 export const reportApi = {

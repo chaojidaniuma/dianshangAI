@@ -2,23 +2,22 @@ import type { FastifyInstance } from 'fastify'
 import * as products from '../repositories/product.repository.js'
 import { productsToRows, toCsv } from '../services/export.service.js'
 import { importProducts, parseSpreadsheet } from '../services/import.service.js'
+import { sendResult } from './http.js'
+import { ImportBodySchema, parse } from './validation.js'
 
 export async function importExportRoutes(app: FastifyInstance): Promise<void> {
   app.post('/api/products/import', async (req, reply) => {
-    const { filename, base64 } = req.body as { filename?: string; base64?: string }
-    if (!filename || !base64) {
-      reply.code(400)
-      return { success: false, code: 'INVALID', message: '缺少文件' }
-    }
+    const b = parse(ImportBodySchema, req.body)
+    if (!b.success) return sendResult(reply, b)
+    const { filename, base64 } = b.data
     let rows: Record<string, unknown>[]
     try {
       rows = parseSpreadsheet(filename, base64)
     } catch {
-      reply.code(400)
-      return { success: false, code: 'PARSE_FAILED', message: '文件解析失败' }
+      return sendResult(reply, { success: false, code: 'PARSE_FAILED', message: '文件解析失败' })
     }
     const result = importProducts(rows)
-    return { success: true, data: { imported: result.imported.length, errors: result.errors } }
+    return sendResult(reply, { success: true, data: { imported: result.imported.length, errors: result.errors } })
   })
 
   app.get('/api/export/products', async (_req, reply) => {

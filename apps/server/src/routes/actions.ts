@@ -1,11 +1,6 @@
-import type { FastifyInstance, FastifyReply } from 'fastify'
-import type { Result } from '@ecom-agent/shared'
+import type { FastifyInstance } from 'fastify'
 import * as svc from '../services/action.service.js'
-
-function sendResult<T>(reply: FastifyReply, result: Result<T>) {
-  reply.code(result.success ? 200 : 400)
-  return result
-}
+import { sendResult } from './http.js'
 
 export async function actionRoutes(app: FastifyInstance): Promise<void> {
   app.post('/api/actions/preview', async (req, reply) => {

@@ -1,12 +1,7 @@
-import type { FastifyInstance, FastifyReply } from 'fastify'
-import type { Result } from '@ecom-agent/shared'
+import type { FastifyInstance } from 'fastify'
 import * as svc from '../services/account.service.js'
-
-function sendResult<T>(reply: FastifyReply, result: Result<T>) {
-  const status = result.success ? 200 : result.code === 'ACCOUNT_NOT_FOUND' ? 404 : 400
-  reply.code(status)
-  return result
-}
+import { sendResult } from './http.js'
+import { IdParamSchema, parse } from './validation.js'
 
 export async function accountRoutes(app: FastifyInstance): Promise<void> {
   app.get('/api/accounts', async (_req, reply) => {
@@ -18,17 +13,20 @@ export async function accountRoutes(app: FastifyInstance): Promise<void> {
   })
 
   app.patch('/api/accounts/:id', async (req, reply) => {
-    const { id } = req.params as { id: string }
-    return sendResult(reply, svc.updateAccount(id, req.body))
+    const p = parse(IdParamSchema, req.params)
+    if (!p.success) return sendResult(reply, p)
+    return sendResult(reply, svc.updateAccount(p.data.id, req.body))
   })
 
   app.delete('/api/accounts/:id', async (req, reply) => {
-    const { id } = req.params as { id: string }
-    return sendResult(reply, svc.deleteAccount(id))
+    const p = parse(IdParamSchema, req.params)
+    if (!p.success) return sendResult(reply, p)
+    return sendResult(reply, svc.deleteAccount(p.data.id))
   })
 
   app.post('/api/accounts/:id/health', async (req, reply) => {
-    const { id } = req.params as { id: string }
-    return sendResult(reply, await svc.checkAccountHealth(id))
+    const p = parse(IdParamSchema, req.params)
+    if (!p.success) return sendResult(reply, p)
+    return sendResult(reply, await svc.checkAccountHealth(p.data.id))
   })
 }

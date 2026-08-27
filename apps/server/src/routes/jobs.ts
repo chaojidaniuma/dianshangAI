@@ -1,12 +1,7 @@
-import type { FastifyInstance, FastifyReply } from 'fastify'
-import type { Result } from '@ecom-agent/shared'
+import type { FastifyInstance } from 'fastify'
 import * as svc from '../services/job.service.js'
-
-function sendResult<T>(reply: FastifyReply, result: Result<T>) {
-  const status = result.success ? 200 : result.code === 'JOB_NOT_FOUND' ? 404 : 400
-  reply.code(status)
-  return result
-}
+import { sendResult } from './http.js'
+import { IdParamSchema, parse } from './validation.js'
 
 export async function jobRoutes(app: FastifyInstance): Promise<void> {
   app.get('/api/jobs', async (_req, reply) => {
@@ -18,22 +13,26 @@ export async function jobRoutes(app: FastifyInstance): Promise<void> {
   })
 
   app.patch('/api/jobs/:id', async (req, reply) => {
-    const { id } = req.params as { id: string }
-    return sendResult(reply, svc.updateJob(id, req.body))
+    const p = parse(IdParamSchema, req.params)
+    if (!p.success) return sendResult(reply, p)
+    return sendResult(reply, svc.updateJob(p.data.id, req.body))
   })
 
   app.delete('/api/jobs/:id', async (req, reply) => {
-    const { id } = req.params as { id: string }
-    return sendResult(reply, svc.deleteJob(id))
+    const p = parse(IdParamSchema, req.params)
+    if (!p.success) return sendResult(reply, p)
+    return sendResult(reply, svc.deleteJob(p.data.id))
   })
 
   app.post('/api/jobs/:id/run', async (req, reply) => {
-    const { id } = req.params as { id: string }
-    return sendResult(reply, await svc.runJob(id))
+    const p = parse(IdParamSchema, req.params)
+    if (!p.success) return sendResult(reply, p)
+    return sendResult(reply, await svc.runJob(p.data.id))
   })
 
   app.get('/api/jobs/:id/runs', async (req, reply) => {
-    const { id } = req.params as { id: string }
-    return sendResult(reply, svc.listJobRuns(id))
+    const p = parse(IdParamSchema, req.params)
+    if (!p.success) return sendResult(reply, p)
+    return sendResult(reply, svc.listJobRuns(p.data.id))
   })
 }

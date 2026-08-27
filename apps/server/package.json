@@ -11,9 +11,11 @@
   },
   "dependencies": {
     "@ecom-agent/shared": "0.1.0",
+    "better-sqlite3": "^13.0.3",
     "fastify": "^5.12.1"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^9.6.0",
     "@types/node": "^24.0.0",
     "typescript": "^5.7.2"
   }

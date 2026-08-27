@@ -14,3 +14,10 @@ export const OrderSchema = z.object({
 })
 
 export type OrderInput = z.infer<typeof OrderSchema>
+
+export const ShipOrderSchema = z.object({
+  expressCompany: z.string().min(1),
+  trackingNumber: z.string().min(1),
+})
+
+export type ShipOrderBody = z.infer<typeof ShipOrderSchema>

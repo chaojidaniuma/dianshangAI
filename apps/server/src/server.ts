@@ -1,10 +1,12 @@
 import { buildApp } from './app.js'
 import { seedDefaultAccount } from './seed.js'
+import { syncMockOrders } from './services/order.service.js'
 
 const port = Number(process.env.PORT ?? 3000)
 const host = process.env.HOST ?? '0.0.0.0'
 
 seedDefaultAccount()
+await syncMockOrders()
 
 const app = buildApp()
 

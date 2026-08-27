@@ -32,4 +32,9 @@ export async function productRoutes(app: FastifyInstance): Promise<void> {
     const { id } = req.params as { id: string }
     return sendResult(reply, svc.deleteProduct(id))
   })
+
+  app.post('/api/products/:id/publish', async (req, reply) => {
+    const { id } = req.params as { id: string }
+    return sendResult(reply, await svc.publishProduct(id))
+  })
 }

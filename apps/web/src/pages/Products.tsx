@@ -38,6 +38,10 @@ export default function Products() {
     mutationFn: (id: string) => productApi.remove(id),
     onSuccess: invalidate,
   })
+  const publishMutation = useMutation({
+    mutationFn: (id: string) => productApi.publish(id),
+    onSuccess: invalidate,
+  })
 
   const filtered = data.filter((p) => {
     if (search && !p.title.includes(search)) return false
@@ -145,6 +149,17 @@ export default function Products() {
                   <td className="px-4 py-3">{p.status}</td>
                   <td className="px-4 py-3">{p.updatedAt}</td>
                   <td className="px-4 py-3">
+                    {p.status === 'draft' && (
+                      <button
+                        className="mr-2 text-green-600"
+                        onClick={() => {
+                          if (window.confirm(`确认发布「${p.title}」到 ${p.platform === 'xianyu' ? '闲鱼' : '拼多多'}？`))
+                            publishMutation.mutate(p.id)
+                        }}
+                      >
+                        发布
+                      </button>
+                    )}
                     <button
                       className="mr-2 text-blue-600"
                       onClick={() => {

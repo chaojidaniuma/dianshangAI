@@ -6,6 +6,7 @@ import { updateRow } from './utils.js'
 export type OrderRow = Order
 
 export interface NewOrder {
+  id?: string
   accountId: string
   platform: string
   orderNo: string
@@ -22,7 +23,7 @@ export interface OrderFilter {
 }
 
 export function createOrder(input: NewOrder): OrderRow {
-  const id = randomUUID()
+  const id = input.id ?? randomUUID()
   getDb()
     .prepare(
       `INSERT INTO orders (id, accountId, platform, orderNo, productId, productTitle, quantity, amount, status)

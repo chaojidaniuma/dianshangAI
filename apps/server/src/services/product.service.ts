@@ -1,5 +1,7 @@
 import { ProductCreateSchema, ProductUpdateSchema, type Result } from '@ecom-agent/shared'
+import { getAdapter } from '../adapters/index.js'
 import * as accounts from '../repositories/account.repository.js'
+import { createAudit } from '../repositories/audit.repository.js'
 import * as products from '../repositories/product.repository.js'
 import type { ProductFilter, ProductRow } from '../repositories/product.repository.js'
 
@@ -55,4 +57,33 @@ export function deleteProduct(id: string): Result<{ id: string }> {
   }
   products.deleteProduct(id)
   return { success: true, data: { id } }
+}
+
+export async function publishProduct(id: string): Promise<Result<ProductRow>> {
+  const product = products.getProductById(id)
+  if (!product) {
+    return { success: false, code: 'PRODUCT_NOT_FOUND', message: '商品不存在' }
+  }
+  const adapter = getAdapter(product.platform)
+  try {
+    const r = await adapter.createProduct({
+      accountId: product.accountId,
+      title: product.title,
+      description: product.description ?? undefined,
+      price: product.price,
+      cost: product.cost,
+      category: product.category ?? undefined,
+    })
+    products.updateProduct(id, { status: 'published', platformProductId: r.platformProductId })
+    createAudit({
+      accountId: product.accountId,
+      action: 'publish',
+      beforeValue: JSON.stringify({ status: product.status }),
+      afterValue: JSON.stringify({ status: 'published', platformProductId: r.platformProductId }),
+      result: 'success',
+    })
+    return { success: true, data: products.getProductById(id) as ProductRow }
+  } catch (err) {
+    return { success: false, code: 'PUBLISH_FAILED', message: (err as Error).message }
+  }
 }

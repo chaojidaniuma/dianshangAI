@@ -1,4 +1,5 @@
 import Fastify, { type FastifyInstance } from 'fastify'
+import { orderRoutes } from './routes/orders.js'
 import { productRoutes } from './routes/products.js'
 
 export function buildApp(): FastifyInstance {
@@ -14,6 +15,7 @@ export function buildApp(): FastifyInstance {
   })
 
   app.register(productRoutes)
+  app.register(orderRoutes)
 
   return app
 }

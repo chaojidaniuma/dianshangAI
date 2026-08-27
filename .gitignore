@@ -1,0 +1,22 @@
+node_modules/
+dist/
+coverage/
+
+# 本地运行时数据
+data/app.db
+data/app.db-*
+data/backups/
+data/exports/
+data/images/
+data/logs/
+
+# 环境变量与凭据
+.env
+.env.*
+!.env.example
+
+# 构建产物与日志
+*.tsbuildinfo
+*.log
+.DS_Store
+Thumbs.db
